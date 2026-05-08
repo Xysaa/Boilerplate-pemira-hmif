@@ -23,33 +23,38 @@ class VoterController extends Controller
         $user    = Auth::user();
         $session = ElectionSession::active()->first();
 
-        $participation = $session
-            ? $user->participationFor($session->id)
-            : null;
+        $participation = null;
+        if ($session) {
+            $participation = $user->participationFor($session->id);
 
-        // Auto-register voter in active session if not yet registered
-        if ($session && !$participation) {
-            $participation = Participation::create([
-                'user_id'             => $user->id,
-                'election_session_id' => $session->id,
-                'status'              => 'registered',
-            ]);
+            // Auto-register voter ke sesi aktif jika belum
+            if (!$participation) {
+                $participation = Participation::create([
+                    'user_id'             => $user->id,
+                    'election_session_id' => $session->id,
+                    'status'              => 'registered',
+                ]);
+            }
         }
 
         return Inertia::render('Voter/Dashboard', [
             'voter'         => $user->only('id', 'name', 'email', 'avatar'),
-            'session'       => $session ? $session->only('id', 'name', 'status', 'start_at', 'end_at') : null,
-            'participation' => $participation ? $participation->only('id', 'status', 'present_at', 'voted_at') : null,
+            'session'       => $session
+                ? $session->only('id', 'name', 'status', 'start_at', 'end_at')
+                : null,
+            'participation' => $participation
+                ? $participation->only('id', 'status', 'present_at', 'voted_at')
+                : null,
         ]);
     }
 
-    // ── QR Code Generation ───────────────────────────────────────────────────
+    // ── QR Code ───────────────────────────────────────────────────────────────
 
     public function generateQr(): JsonResponse
     {
-        $user = Auth::user();
-
+        $user    = Auth::user();
         $session = ElectionSession::active()->first();
+
         if (!$session) {
             return response()->json(['error' => 'Tidak ada sesi pemilihan aktif.'], 422);
         }
@@ -64,7 +69,7 @@ class VoterController extends Controller
         return response()->json($token);
     }
 
-    // ── Voting ───────────────────────────────────────────────────────────────
+    // ── Voting ────────────────────────────────────────────────────────────────
 
     public function showVoting(): Response
     {
@@ -91,7 +96,10 @@ class VoterController extends Controller
         return Inertia::render('Voter/Vote', [
             'voter'      => $user->only('id', 'name', 'email', 'avatar'),
             'session'    => $session->only('id', 'name'),
-            'candidates' => $session->candidates->map(fn ($c) => $c->only('id', 'number', 'name', 'vice_name', 'vision', 'mission', 'photo', 'vice_photo')),
+            'candidates' => $session->candidates->map(fn ($c) => $c->only(
+                'id', 'number', 'name', 'vice_name',
+                'vision', 'mission', 'photo', 'vice_photo'
+            )),
         ]);
     }
 
@@ -107,24 +115,29 @@ class VoterController extends Controller
         $participation = $user->participationFor($session->id);
 
         // Guards
-        abort_if(!$participation || !$participation->isPresent(), 403, 'Belum presensi.');
-        abort_if($participation->hasVoted(), 403, 'Sudah melakukan pemungutan suara.');
         abort_if(
-            !\App\Models\Candidate::where('id', $request->candidate_id)
-                ->where('election_session_id', $session->id)
-                ->exists(),
-            422,
-            'Kandidat tidak valid.'
+            !$participation || !$participation->isPresent(),
+            403,
+            'Belum melakukan presensi.'
+        );
+        abort_if(
+            $participation->hasVoted(),
+            403,
+            'Anda sudah melakukan pemungutan suara.'
         );
 
-        // ── Store anonymous vote ─────────────────────────────────────────────
+        // Pastikan kandidat memang milik sesi ini
+        $candidate = \App\Models\Candidate::where('id', $request->candidate_id)
+            ->where('election_session_id', $session->id)
+            ->firstOrFail();
+
+        // Simpan suara secara anonim — TIDAK ada user_id
         BallotBox::create([
-            'election_session_id' => $session->id,
-            'candidate_id'        => $request->candidate_id,
-            // NO user_id — anonymity preserved
+            'election_session_id' => $session->id,  // ← ini yang kurang sebelumnya
+            'candidate_id'        => $candidate->id,
         ]);
 
-        // ── Update participation status ──────────────────────────────────────
+        // Update status participation
         $participation->update([
             'status'   => 'voted',
             'voted_at' => now(),

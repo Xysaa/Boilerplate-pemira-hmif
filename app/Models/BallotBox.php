@@ -15,7 +15,7 @@ class BallotBox extends Model
 {
     public $timestamps = false;
 
-    protected $fillable = ['voting_session_id', 'candidate_id'];
+    protected $fillable = ['election_session_id', 'candidate_id'];
 
     protected function casts(): array
     {
