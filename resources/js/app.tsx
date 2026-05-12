@@ -18,12 +18,14 @@ createInertiaApp({
         const root = createRoot(el);
         root.render(
             <>
-                <App {...props} />
+                {/* Toaster portal lives outside App — no Inertia context needed */}
                 <Toaster />
+                <App {...props} />
             </>
         );
     },
     progress: {
         color: '#CBCF1A',
+        showSpinner: false,
     },
 });

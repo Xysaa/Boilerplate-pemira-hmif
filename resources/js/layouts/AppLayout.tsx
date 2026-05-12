@@ -1,14 +1,16 @@
 import { ReactNode, useState } from 'react';
+import { ReactNode, useState } from 'react';
 import { Link, usePage, router } from '@inertiajs/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     LayoutDashboard, Users, Vote, QrCode, BarChart3,
-    LogOut, Menu, ChevronRight, UserCheck, ClipboardList,
+    LogOut, Menu, X, ChevronRight, UserCheck, ClipboardList,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Logo } from '@/components/brand/Logo';
+import { FlashToast } from '@/components/ui/toaster';
 import { cn } from '@/lib/utils';
 import type { User } from '@/types';
 
@@ -67,16 +69,23 @@ export default function AppLayout({ children, title, subtitle }: AppLayoutProps)
     const SidebarContent = () => (
         <div className="flex flex-col h-full bg-white border-r border-border">
             {/* Logo */}
-            <div className="p-6 border-b border-border">
+            <div className="p-5 border-b border-border flex items-center justify-between">
                 <div className="flex items-center gap-3">
                     <Logo size={32} />
                     <div>
-                        <p className="text-foreground font-bold text-base leading-none font-serif">
+                        <p className="text-foreground font-bold text-base leading-none">
                             PEMIRA
                         </p>
                         <p className="text-muted-foreground text-xs font-mono">HMIF ITERA</p>
                     </div>
                 </div>
+                <button
+                    onClick={() => setSidebarOpen(false)}
+                    className="lg:hidden p-1.5 rounded-lg hover:bg-muted text-muted-foreground"
+                    aria-label="Tutup menu"
+                >
+                    <X className="w-4 h-4" />
+                </button>
             </div>
 
             {/* User info */}
@@ -144,6 +153,9 @@ export default function AppLayout({ children, title, subtitle }: AppLayoutProps)
 
     return (
         <div className="min-h-screen bg-background flex">
+            {/* Flash listener — inside Inertia context */}
+            <FlashToast />
+
             {/* Desktop Sidebar */}
             <div className="hidden lg:flex flex-col fixed left-0 top-0 h-full z-30 w-64">
                 <SidebarContent />
