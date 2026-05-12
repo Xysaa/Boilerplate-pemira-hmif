@@ -1,11 +1,13 @@
 import { motion } from 'framer-motion';
 import { Link } from '@inertiajs/react';
-import { QrCode, Users, AlertCircle } from 'lucide-react';
+import { QrCode, Users, AlertCircle, Activity, Vote } from 'lucide-react';
 import AppLayout from '@/layouts/AppLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { StatCard } from '@/components/shared/StatCard';
+import { EmptyState } from '@/components/shared/EmptyState';
 import { cn } from '@/lib/utils';
 
 interface PetugasDashboardProps {
@@ -25,77 +27,95 @@ interface PetugasDashboardProps {
 
 export default function PetugasDashboard({ session, recentScans }: PetugasDashboardProps) {
     return (
-        <AppLayout title="Dashboard Petugas">
-            <div className="max-w-3xl mx-auto space-y-6">
+        <AppLayout title="Panel Petugas" subtitle="Kelola presensi pemilih di TPS">
+            <div className="max-w-4xl mx-auto space-y-6">
                 <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
-                    <h2 className="text-2xl font-bold text-white"
-                        style={{ fontFamily: "'DM Serif Display', serif" }}>
-                        Panel Petugas
-                    </h2>
-                    <p className="text-emerald-500/50 text-sm mt-1">Kelola presensi pemilih</p>
+                    <h2 className="text-2xl font-bold text-foreground tracking-tight">Panel Petugas</h2>
+                    <p className="text-muted-foreground text-sm mt-1">Verifikasi kehadiran pemilih</p>
                 </motion.div>
 
-                {/* Session Info */}
                 {session ? (
-                    <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}>
-                        <Card className="bg-gradient-to-br from-emerald-950/80 to-[#0f2318]/60 border-emerald-700/40">
-                            <CardHeader>
-                                <div className="flex items-center justify-between flex-wrap gap-2">
-                                    <CardTitle className="text-white text-base">{session.name}</CardTitle>
-                                    <Badge className="bg-emerald-700/30 text-emerald-300 border-emerald-700 font-mono text-xs animate-pulse">
-                                        AKTIF
-                                    </Badge>
-                                </div>
-                            </CardHeader>
-                            <CardContent>
-                                <div className="grid grid-cols-2 gap-4 mb-4">
-                                    <div className="bg-black/20 rounded-xl p-4 border border-emerald-900/20">
-                                        <p className="text-emerald-500/50 text-xs font-mono mb-1">Sudah Presensi</p>
-                                        <p className="text-3xl font-bold text-white"
-                                            style={{ fontFamily: "'DM Serif Display', serif" }}>
-                                            {session.participations_count}
-                                        </p>
+                    <>
+                        {/* Stats */}
+                        <div className="grid grid-cols-2 gap-4">
+                            <StatCard
+                                label="Sudah Presensi"
+                                value={session.participations_count}
+                                icon={Users}
+                                tone="blue"
+                                delay={0.05}
+                                subtitle="Total hadir"
+                            />
+                            <StatCard
+                                label="Suara Masuk"
+                                value={session.ballot_boxes_count}
+                                icon={Vote}
+                                tone="green"
+                                delay={0.1}
+                                subtitle="Yang sudah vote"
+                            />
+                        </div>
+
+                        {/* Session card with scan button */}
+                        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
+                            <Card className="bg-gradient-to-br from-hmif-green-50 to-white border-hmif-green-200 overflow-hidden">
+                                <CardContent className="p-6">
+                                    <div className="flex items-center justify-between flex-wrap gap-3 mb-5">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-10 h-10 rounded-xl bg-hmif-green-700 flex items-center justify-center">
+                                                <Activity className="w-5 h-5 text-hmif-yellow-300" />
+                                            </div>
+                                            <div>
+                                                <p className="text-foreground font-bold">{session.name}</p>
+                                                <p className="text-muted-foreground text-xs">Sesi aktif</p>
+                                            </div>
+                                        </div>
+                                        <Badge className="bg-hmif-green-700 text-white gap-1.5">
+                                            <span className="relative flex w-1.5 h-1.5">
+                                                <span className="absolute inline-flex w-full h-full rounded-full bg-hmif-yellow-300 opacity-75 animate-ping" />
+                                                <span className="relative inline-flex w-1.5 h-1.5 rounded-full bg-hmif-yellow-300" />
+                                            </span>
+                                            AKTIF
+                                        </Badge>
                                     </div>
-                                    <div className="bg-black/20 rounded-xl p-4 border border-emerald-900/20">
-                                        <p className="text-emerald-500/50 text-xs font-mono mb-1">Suara Masuk</p>
-                                        <p className="text-3xl font-bold text-white"
-                                            style={{ fontFamily: "'DM Serif Display', serif" }}>
-                                            {session.ballot_boxes_count}
-                                        </p>
-                                    </div>
-                                </div>
-                                <Link href={route('petugas.scan')}>
-                                    <Button className="w-full bg-emerald-700 hover:bg-emerald-600 text-white gap-2 h-12">
-                                        <QrCode className="w-5 h-5" />
-                                        Buka Scanner QR
-                                    </Button>
-                                </Link>
-                            </CardContent>
-                        </Card>
-                    </motion.div>
+                                    <Link href={route('petugas.scan')}>
+                                        <Button className="w-full gap-2 h-12 shadow-lg shadow-hmif-green-900/15" size="lg">
+                                            <QrCode className="w-5 h-5" />
+                                            Buka Scanner QR
+                                        </Button>
+                                    </Link>
+                                </CardContent>
+                            </Card>
+                        </motion.div>
+                    </>
                 ) : (
                     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.05 }}>
-                        <Card className="bg-[#0f2318]/40 border-emerald-900/20">
-                            <CardContent className="flex flex-col items-center justify-center py-12 gap-3">
-                                <AlertCircle className="w-10 h-10 text-emerald-900" />
-                                <p className="text-emerald-700 text-sm">Tidak ada sesi pemilihan aktif</p>
-                            </CardContent>
+                        <Card>
+                            <EmptyState
+                                icon={AlertCircle}
+                                title="Tidak ada sesi pemilihan aktif"
+                                description="Tunggu admin mengaktifkan sesi pemilihan untuk memulai scan presensi."
+                            />
                         </Card>
                     </motion.div>
                 )}
 
                 {/* Recent Scans */}
-                <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-                    <Card className="bg-[#0f2318]/60 border-emerald-900/30">
+                <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+                    <Card>
                         <CardHeader>
-                            <CardTitle className="text-white text-base flex items-center gap-2">
-                                <Users className="w-4 h-4 text-emerald-500" />
+                            <CardTitle className="text-base flex items-center gap-2">
+                                <Users className="w-4 h-4 text-hmif-green-700" />
                                 Presensi Terkini
                             </CardTitle>
                         </CardHeader>
                         <CardContent>
                             {recentScans.length === 0 ? (
-                                <p className="text-emerald-800 text-sm text-center py-6">Belum ada presensi</p>
+                                <EmptyState
+                                    icon={Users}
+                                    title="Belum ada presensi"
+                                    description="Pemilih yang sudah di-scan akan muncul di sini."
+                                />
                             ) : (
                                 <div className="space-y-2">
                                     {recentScans.map((scan, i) => (
@@ -103,30 +123,32 @@ export default function PetugasDashboard({ session, recentScans }: PetugasDashbo
                                             key={scan.id}
                                             initial={{ opacity: 0, x: -10 }}
                                             animate={{ opacity: 1, x: 0 }}
-                                            transition={{ delay: 0.15 + i * 0.04 }}
-                                            className="flex items-center gap-3 p-3 rounded-xl bg-black/20 border border-emerald-900/20"
+                                            transition={{ delay: 0.25 + i * 0.04 }}
+                                            className="flex items-center gap-3 p-3 rounded-xl border border-border hover:border-hmif-green-200 hover:bg-hmif-green-50/30 transition-all"
                                         >
-                                            <Avatar className="w-9 h-9 border border-emerald-800/40">
+                                            <Avatar className="w-9 h-9 border border-border">
                                                 <AvatarImage src={scan.user.avatar} />
-                                                <AvatarFallback className="bg-emerald-900/60 text-emerald-300 text-xs">
+                                                <AvatarFallback className="text-xs">
                                                     {scan.user.name.charAt(0)}
                                                 </AvatarFallback>
                                             </Avatar>
                                             <div className="flex-1 min-w-0">
-                                                <p className="text-white text-sm font-medium truncate">{scan.user.name}</p>
-                                                <p className="text-emerald-600/50 text-xs font-mono truncate">{scan.user.email}</p>
+                                                <p className="text-foreground text-sm font-semibold truncate">{scan.user.name}</p>
+                                                <p className="text-muted-foreground text-xs font-mono truncate">{scan.user.email}</p>
                                             </div>
-                                            <Badge
-                                                variant="outline"
-                                                className={cn(
-                                                    'text-xs font-mono flex-shrink-0',
-                                                    scan.status === 'voted'
-                                                        ? 'bg-blue-900/40 text-blue-300 border-blue-800'
-                                                        : 'bg-emerald-900/40 text-emerald-300 border-emerald-800'
-                                                )}
-                                            >
-                                                {scan.status === 'voted' ? 'Voted' : 'Hadir'}
-                                            </Badge>
+                                            <div className="flex items-center gap-2 flex-shrink-0">
+                                                <span className="text-muted-foreground text-[10px] font-mono hidden sm:block">
+                                                    {new Date(scan.present_at).toLocaleTimeString('id-ID', {
+                                                        hour: '2-digit', minute: '2-digit',
+                                                    })}
+                                                </span>
+                                                <Badge
+                                                    variant={scan.status === 'voted' ? 'info' : 'success'}
+                                                    className="text-[10px]"
+                                                >
+                                                    {scan.status === 'voted' ? 'Voted' : 'Hadir'}
+                                                </Badge>
+                                            </div>
                                         </motion.div>
                                     ))}
                                 </div>

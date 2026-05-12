@@ -1,5 +1,5 @@
 export type Role = 'admin' | 'petugas' | 'voter';
-export type SessionStatus = 'draft' | 'active' | 'closed';
+export type SessionStatus = 'draft' | 'active' | 'ended';
 export type ParticipationStatus = 'registered' | 'present' | 'voted';
 
 export interface User {
@@ -19,10 +19,15 @@ export interface ElectionSession {
   status: SessionStatus;
   started_at?: string;
   ended_at?: string;
+  start_at?: string;
+  end_at?: string;
   created_by?: number;
   total_voters?: number;
   total_present?: number;
   total_voted?: number;
+  participations_count?: number;
+  ballot_boxes_count?: number;
+  candidates_count?: number;
 }
 
 export interface Candidate {
@@ -38,6 +43,7 @@ export interface Candidate {
   is_active: boolean;
   votes?: number;
   percentage?: number;
+  ballot_boxes_count?: number;
 }
 
 export interface Participation {
@@ -49,4 +55,29 @@ export interface Participation {
 export interface PageProps {
   auth: { user: User };
   flash?: { success?: string; error?: string; info?: string };
+}
+
+export interface AdminDashboardProps {
+  stats: {
+    total_voters: number;
+    total_petugas: number;
+    total_sessions: number;
+    active_session: {
+      name: string;
+      total_voters: number;
+      total_present: number;
+      total_votes: number;
+    } | null;
+  };
+  sessions: (ElectionSession & {
+    participations_count: number;
+    ballot_boxes_count: number;
+  })[];
+}
+
+export interface VoterDashboardProps {
+  session: ElectionSession | null;
+  candidates: Candidate[];
+  participation: Participation | null;
+  hasVoted: boolean;
 }

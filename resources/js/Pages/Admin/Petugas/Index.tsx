@@ -51,54 +51,52 @@ export default function PetugasPage({ petugas }: PetugasPageProps) {
     };
 
     return (
-        <AppLayout title="Manajemen Petugas">
+        <AppLayout title="Manajemen Petugas" subtitle={`${petugas.length} akun petugas`}>
             <div className="max-w-3xl mx-auto space-y-6">
                 <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
                     className="flex items-center justify-between flex-wrap gap-3">
                     <div>
-                        <h2 className="text-2xl font-bold text-white"
-                            style={{ fontFamily: "'DM Serif Display', serif" }}>
+                        <h2 className="text-2xl font-bold text-foreground font-serif">
                             Manajemen Petugas
                         </h2>
-                        <p className="text-emerald-500/50 text-sm mt-1">{petugas.length} akun petugas</p>
+                        <p className="text-muted-foreground text-sm mt-1">{petugas.length} akun petugas</p>
                     </div>
-                    <Button onClick={() => setCreateOpen(true)}
-                        className="bg-emerald-700 hover:bg-emerald-600 text-white gap-2">
+                    <Button onClick={() => setCreateOpen(true)} className="gap-2">
                         <Plus className="w-4 h-4" /> Tambah Petugas
                     </Button>
                 </motion.div>
 
-                <div className="space-y-3">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {petugas.length === 0 ? (
-                        <Card className="bg-[#0f2318]/40 border-emerald-900/20">
+                        <Card className="md:col-span-2">
                             <CardContent className="flex flex-col items-center py-16 gap-3">
-                                <UserCheck className="w-10 h-10 text-emerald-900" />
-                                <p className="text-emerald-700 text-sm">Belum ada akun petugas</p>
+                                <UserCheck className="w-10 h-10 text-muted-foreground/30" />
+                                <p className="text-muted-foreground text-sm">Belum ada akun petugas</p>
                             </CardContent>
                         </Card>
                     ) : petugas.map((p, i) => (
                         <motion.div key={p.id}
                             initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: i * 0.05 }}>
-                            <Card className="bg-[#0f2318]/60 border-emerald-900/30 hover:border-emerald-800/40 transition-all">
+                            <Card className="hover:shadow-md hover:border-hmif-blue-200 transition-all">
                                 <CardContent className="p-4">
                                     <div className="flex items-center justify-between gap-3">
                                         <div className="flex items-center gap-3">
-                                            <Avatar className="w-10 h-10 border border-emerald-800/40">
-                                                <AvatarFallback className="bg-blue-900/60 text-blue-300">
+                                            <Avatar className="w-10 h-10 border border-border">
+                                                <AvatarFallback className="bg-hmif-blue-100 text-hmif-blue-700">
                                                     {p.name.charAt(0).toUpperCase()}
                                                 </AvatarFallback>
                                             </Avatar>
                                             <div>
-                                                <p className="text-white font-medium text-sm">{p.name}</p>
-                                                <p className="text-emerald-600/50 text-xs font-mono">{p.email}</p>
-                                                <p className="text-emerald-900/60 text-xs mt-0.5">
+                                                <p className="text-foreground font-medium text-sm">{p.name}</p>
+                                                <p className="text-muted-foreground text-xs font-mono">{p.email}</p>
+                                                <p className="text-muted-foreground text-xs mt-0.5">
                                                     Dibuat: {new Date(p.created_at).toLocaleDateString('id-ID')}
                                                 </p>
                                             </div>
                                         </div>
-                                        <Button onClick={() => setDeleteTarget(p)} variant="outline" size="sm"
-                                            className="border-red-900 text-red-500 hover:bg-red-950/30">
+                                        <Button onClick={() => setDeleteTarget(p)} variant="outline" size="icon-sm"
+                                            className="border-red-200 text-red-600 hover:bg-red-50">
                                             <Trash2 className="w-3.5 h-3.5" />
                                         </Button>
                                     </div>
@@ -111,45 +109,39 @@ export default function PetugasPage({ petugas }: PetugasPageProps) {
 
             {/* Create Dialog */}
             <Dialog open={createOpen} onOpenChange={setCreateOpen}>
-                <DialogContent className="bg-[#0f2318] border-emerald-800/50 text-white max-w-md">
+                <DialogContent className="max-w-md">
                     <DialogHeader>
                         <DialogTitle>Tambah Akun Petugas</DialogTitle>
                     </DialogHeader>
                     <div className="space-y-4 py-2">
                         <div className="space-y-1.5">
-                            <Label className="text-emerald-300/80 text-sm">Nama Lengkap</Label>
+                            <Label>Nama Lengkap</Label>
                             <Input value={form.data.name} onChange={e => form.setData('name', e.target.value)}
-                                className="bg-emerald-950/30 border-emerald-900/50 text-white"
                                 placeholder="Nama Petugas" />
-                            {form.errors.name && <p className="text-red-400 text-xs">{form.errors.name}</p>}
+                            {form.errors.name && <p className="text-red-600 text-xs">{form.errors.name}</p>}
                         </div>
                         <div className="space-y-1.5">
-                            <Label className="text-emerald-300/80 text-sm">Email</Label>
+                            <Label>Email</Label>
                             <Input type="email" value={form.data.email} onChange={e => form.setData('email', e.target.value)}
-                                className="bg-emerald-950/30 border-emerald-900/50 text-white"
                                 placeholder="petugas@itera.ac.id" />
-                            {form.errors.email && <p className="text-red-400 text-xs">{form.errors.email}</p>}
+                            {form.errors.email && <p className="text-red-600 text-xs">{form.errors.email}</p>}
                         </div>
                         <div className="space-y-1.5">
-                            <Label className="text-emerald-300/80 text-sm">Password</Label>
+                            <Label>Password</Label>
                             <Input type="password" value={form.data.password}
                                 onChange={e => form.setData('password', e.target.value)}
-                                className="bg-emerald-950/30 border-emerald-900/50 text-white"
                                 placeholder="Minimal 8 karakter" />
-                            {form.errors.password && <p className="text-red-400 text-xs">{form.errors.password}</p>}
+                            {form.errors.password && <p className="text-red-600 text-xs">{form.errors.password}</p>}
                         </div>
                         <div className="space-y-1.5">
-                            <Label className="text-emerald-300/80 text-sm">Konfirmasi Password</Label>
+                            <Label>Konfirmasi Password</Label>
                             <Input type="password" value={form.data.password_confirmation}
-                                onChange={e => form.setData('password_confirmation', e.target.value)}
-                                className="bg-emerald-950/30 border-emerald-900/50 text-white" />
+                                onChange={e => form.setData('password_confirmation', e.target.value)} />
                         </div>
                     </div>
                     <DialogFooter>
-                        <Button variant="outline" onClick={() => setCreateOpen(false)}
-                            className="border-emerald-800 text-emerald-400 hover:bg-emerald-900/30">Batal</Button>
-                        <Button onClick={handleCreate} disabled={form.processing}
-                            className="bg-emerald-700 hover:bg-emerald-600 text-white gap-2">
+                        <Button variant="outline" onClick={() => setCreateOpen(false)}>Batal</Button>
+                        <Button onClick={handleCreate} disabled={form.processing} className="gap-2">
                             {form.processing && <Loader2 className="w-4 h-4 animate-spin" />}
                             Buat Akun
                         </Button>
@@ -159,16 +151,16 @@ export default function PetugasPage({ petugas }: PetugasPageProps) {
 
             {/* Delete Alert */}
             <AlertDialog open={!!deleteTarget} onOpenChange={() => setDeleteTarget(null)}>
-                <AlertDialogContent className="bg-[#0f2318] border-red-900/50 text-white">
+                <AlertDialogContent>
                     <AlertDialogHeader>
                         <AlertDialogTitle>Hapus Akun Petugas?</AlertDialogTitle>
-                        <AlertDialogDescription className="text-emerald-500/50">
-                            Akun "<span className="text-white">{deleteTarget?.name}</span>" akan dihapus permanen.
+                        <AlertDialogDescription>
+                            Akun &ldquo;<span className="font-medium text-foreground">{deleteTarget?.name}</span>&rdquo; akan dihapus permanen.
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                        <AlertDialogCancel className="border-emerald-800 text-emerald-400 bg-transparent">Batal</AlertDialogCancel>
-                        <AlertDialogAction onClick={handleDelete} className="bg-red-800 hover:bg-red-700">Hapus</AlertDialogAction>
+                        <AlertDialogCancel>Batal</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700 text-white">Hapus</AlertDialogAction>
                     </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialog>
