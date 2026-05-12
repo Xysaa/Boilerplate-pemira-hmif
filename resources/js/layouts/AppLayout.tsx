@@ -3,17 +3,19 @@ import { Link, usePage, router } from '@inertiajs/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     LayoutDashboard, Users, Vote, QrCode, BarChart3,
-    LogOut, Menu, ChevronRight, Leaf, UserCheck, ClipboardList,
+    LogOut, Menu, ChevronRight, UserCheck, ClipboardList,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Logo } from '@/components/brand/Logo';
 import { cn } from '@/lib/utils';
 import type { User } from '@/types';
 
 interface AppLayoutProps {
     children: ReactNode;
     title?: string;
+    subtitle?: string;
 }
 
 const adminNav = [
@@ -47,12 +49,12 @@ function getRoleLabel(role: string) {
 }
 
 function getRoleBadgeCls(role: string) {
-    if (role === 'admin')   return 'bg-amber-900/60 text-amber-300 border-amber-800';
-    if (role === 'petugas') return 'bg-blue-900/60 text-blue-300 border-blue-800';
-    return 'bg-emerald-900/60 text-emerald-300 border-emerald-800';
+    if (role === 'admin')   return 'bg-hmif-yellow-100 text-hmif-yellow-800 border-hmif-yellow-300';
+    if (role === 'petugas') return 'bg-hmif-blue-100 text-hmif-blue-800 border-hmif-blue-300';
+    return 'bg-hmif-green-100 text-hmif-green-800 border-hmif-green-300';
 }
 
-export default function AppLayout({ children, title }: AppLayoutProps) {
+export default function AppLayout({ children, title, subtitle }: AppLayoutProps) {
     const { auth } = usePage<{ auth: { user: User } }>().props;
     const user = auth.user;
     const nav  = getRoleNav(user.role);
@@ -63,34 +65,31 @@ export default function AppLayout({ children, title }: AppLayoutProps) {
     };
 
     const SidebarContent = () => (
-        <div className="flex flex-col h-full bg-[#0a1a0f] border-r border-emerald-900/30">
+        <div className="flex flex-col h-full bg-white border-r border-border">
             {/* Logo */}
-            <div className="p-6 border-b border-emerald-900/30">
+            <div className="p-6 border-b border-border">
                 <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-emerald-900/60 border border-emerald-700/50 flex items-center justify-center flex-shrink-0">
-                        <Leaf className="w-5 h-5 text-emerald-400" />
-                    </div>
+                    <Logo size={32} />
                     <div>
-                        <p className="text-white font-bold text-base leading-none"
-                            style={{ fontFamily: "'DM Serif Display', serif" }}>
-                            E-Vote
+                        <p className="text-foreground font-bold text-base leading-none font-serif">
+                            PEMIRA
                         </p>
-                        <p className="text-emerald-500/60 text-xs font-mono">ITERA</p>
+                        <p className="text-muted-foreground text-xs font-mono">HMIF ITERA</p>
                     </div>
                 </div>
             </div>
 
             {/* User info */}
-            <div className="p-4 border-b border-emerald-900/20">
+            <div className="p-4 border-b border-border">
                 <div className="flex items-center gap-3">
-                    <Avatar className="w-10 h-10 border border-emerald-700/40 flex-shrink-0">
+                    <Avatar className="w-10 h-10 border border-border flex-shrink-0">
                         <AvatarImage src={user.avatar} />
-                        <AvatarFallback className="bg-emerald-900/60 text-emerald-300 text-sm">
+                        <AvatarFallback>
                             {user.name.charAt(0).toUpperCase()}
                         </AvatarFallback>
                     </Avatar>
                     <div className="min-w-0 flex-1">
-                        <p className="text-white text-sm font-medium truncate">{user.name}</p>
+                        <p className="text-foreground text-sm font-medium truncate">{user.name}</p>
                         <Badge
                             variant="outline"
                             className={cn('text-[10px] mt-0.5 font-mono py-0', getRoleBadgeCls(user.role))}
@@ -114,27 +113,27 @@ export default function AppLayout({ children, title }: AppLayoutProps) {
                             className={cn(
                                 'flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all group',
                                 isActive
-                                    ? 'bg-emerald-700/30 text-emerald-300 border border-emerald-700/40'
-                                    : 'text-emerald-600 hover:text-emerald-300 hover:bg-emerald-900/40'
+                                    ? 'bg-hmif-green-700 text-white shadow-sm'
+                                    : 'text-muted-foreground hover:text-foreground hover:bg-muted'
                             )}
                         >
                             <Icon className={cn(
                                 'w-4 h-4 flex-shrink-0',
-                                isActive ? 'text-emerald-400' : 'text-emerald-700 group-hover:text-emerald-500'
+                                isActive ? 'text-white' : 'text-muted-foreground group-hover:text-foreground'
                             )} />
                             <span className="flex-1">{item.label}</span>
-                            {isActive && <ChevronRight className="w-3 h-3 text-emerald-500" />}
+                            {isActive && <ChevronRight className="w-3 h-3 text-white/70" />}
                         </Link>
                     );
                 })}
             </nav>
 
             {/* Logout */}
-            <div className="p-4 border-t border-emerald-900/30">
+            <div className="p-4 border-t border-border">
                 <Button
                     onClick={handleLogout}
                     variant="ghost"
-                    className="w-full justify-start gap-3 text-emerald-700 hover:text-red-400 hover:bg-red-950/30"
+                    className="w-full justify-start gap-3 text-muted-foreground hover:text-red-600 hover:bg-red-50"
                 >
                     <LogOut className="w-4 h-4" />
                     Keluar
@@ -144,7 +143,7 @@ export default function AppLayout({ children, title }: AppLayoutProps) {
     );
 
     return (
-        <div className="min-h-screen bg-[#07130b] flex">
+        <div className="min-h-screen bg-background flex">
             {/* Desktop Sidebar */}
             <div className="hidden lg:flex flex-col fixed left-0 top-0 h-full z-30 w-64">
                 <SidebarContent />
@@ -156,7 +155,7 @@ export default function AppLayout({ children, title }: AppLayoutProps) {
                     <>
                         <motion.div
                             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                            className="fixed inset-0 bg-black/60 z-40 lg:hidden"
+                            className="fixed inset-0 bg-hmif-green-950/30 z-40 lg:hidden"
                             onClick={() => setSidebarOpen(false)}
                         />
                         <motion.div
@@ -173,22 +172,25 @@ export default function AppLayout({ children, title }: AppLayoutProps) {
             {/* Main content */}
             <div className="flex-1 lg:ml-64 flex flex-col min-h-screen">
                 {/* Top bar */}
-                <header className="sticky top-0 z-20 bg-[#07130b]/90 backdrop-blur-sm border-b border-emerald-900/20 px-4 lg:px-8 py-4">
+                <header className="sticky top-0 z-20 bg-white/80 backdrop-blur-md border-b border-border px-4 lg:px-8 py-4">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
                             <Button
                                 variant="ghost"
-                                size="icon"
-                                className="lg:hidden text-emerald-600 hover:text-emerald-400"
+                                size="icon-sm"
+                                className="lg:hidden text-muted-foreground hover:text-foreground"
                                 onClick={() => setSidebarOpen(true)}
                             >
                                 <Menu className="w-5 h-5" />
                             </Button>
-                            {title && <h1 className="text-white font-semibold text-lg">{title}</h1>}
+                            <div>
+                                {title && <h1 className="text-foreground font-semibold text-lg">{title}</h1>}
+                                {subtitle && <p className="text-muted-foreground text-sm">{subtitle}</p>}
+                            </div>
                         </div>
                         <div className="hidden sm:flex items-center gap-2">
-                            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                            <span className="text-emerald-500/60 text-xs font-mono">Live</span>
+                            <div className="w-2 h-2 rounded-full bg-hmif-green-500 animate-pulse" />
+                            <span className="text-muted-foreground text-xs font-mono">Online</span>
                         </div>
                     </div>
                 </header>
@@ -198,9 +200,9 @@ export default function AppLayout({ children, title }: AppLayoutProps) {
                     {children}
                 </main>
 
-                <footer className="border-t border-emerald-900/20 py-4 px-8 text-center">
-                    <p className="text-emerald-900/50 text-xs font-mono">
-                        E-Vote ITERA © 2025 · Himpunan Mahasiswa Informatika
+                <footer className="border-t border-border py-4 px-8 text-center">
+                    <p className="text-muted-foreground text-xs font-mono">
+                        PEMIRA HMIF &copy; 2025 &middot; HMIF ITERA
                     </p>
                 </footer>
             </div>

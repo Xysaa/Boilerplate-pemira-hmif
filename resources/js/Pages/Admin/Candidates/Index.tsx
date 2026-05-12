@@ -77,142 +77,142 @@ export default function CandidatesPage({ sessions, candidates }: CandidatesPageP
     };
 
     return (
-        <AppLayout title="Kandidat">
-            <div className="max-w-4xl mx-auto space-y-6">
+        <AppLayout title="Kandidat" subtitle={`${candidates.length} kandidat terdaftar`}>
+            <div className="max-w-5xl mx-auto space-y-6">
                 <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
                     className="flex items-center justify-between flex-wrap gap-3">
                     <div>
-                        <h2 className="text-2xl font-bold text-white"
-                            style={{ fontFamily: "'DM Serif Display', serif" }}>
+                        <h2 className="text-2xl font-bold text-foreground font-serif">
                             Manajemen Kandidat
                         </h2>
-                        <p className="text-emerald-500/50 text-sm mt-1">{candidates.length} kandidat terdaftar</p>
+                        <p className="text-muted-foreground text-sm mt-1">{candidates.length} kandidat terdaftar</p>
                     </div>
-                    <Button onClick={() => setCreateOpen(true)}
-                        className="bg-emerald-700 hover:bg-emerald-600 text-white gap-2">
+                    <Button onClick={() => setCreateOpen(true)} className="gap-2">
                         <Plus className="w-4 h-4" /> Tambah Kandidat
                     </Button>
                 </motion.div>
 
-                {/* List */}
-                <div className="space-y-3">
-                    {candidates.length === 0 ? (
-                        <Card className="bg-[#0f2318]/40 border-emerald-900/20">
-                            <CardContent className="flex flex-col items-center py-16 gap-3">
-                                <Users className="w-10 h-10 text-emerald-900" />
-                                <p className="text-emerald-700 text-sm">Belum ada kandidat</p>
-                            </CardContent>
-                        </Card>
-                    ) : candidates.map((c, i) => (
-                        <motion.div key={c.id}
-                            initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: i * 0.05 }}>
-                            <Card className="bg-[#0f2318]/60 border-emerald-900/30 hover:border-emerald-800/40 transition-all">
-                                <CardContent className="p-4">
-                                    <div className="flex items-center justify-between gap-4 flex-wrap">
-                                        <div className="flex items-center gap-4">
-                                            <div className="w-10 h-10 rounded-xl bg-emerald-700/30 flex items-center justify-center text-emerald-300 font-bold flex-shrink-0">
-                                                {c.number}
-                                            </div>
-                                            <div className="flex items-center gap-2">
-                                                <Avatar className="w-10 h-10 border border-emerald-900/40">
-                                                    <AvatarImage src={c.photo ? `/storage/${c.photo}` : undefined} />
-                                                    <AvatarFallback className="bg-emerald-900/60 text-emerald-300 text-sm">
-                                                        {c.name.charAt(0)}
-                                                    </AvatarFallback>
-                                                </Avatar>
-                                                <div>
-                                                    <p className="text-white font-semibold text-sm">{c.name}</p>
-                                                    {c.vice_name && (
-                                                        <p className="text-emerald-600/50 text-xs">& {c.vice_name}</p>
-                                                    )}
-                                                    <p className="text-emerald-800/60 text-xs font-mono mt-0.5">
-                                                        {(c as any).election_session?.name}
-                                                    </p>
+                {/* Grid */}
+                {candidates.length === 0 ? (
+                    <Card>
+                        <CardContent className="flex flex-col items-center py-16 gap-3">
+                            <Users className="w-10 h-10 text-muted-foreground/30" />
+                            <p className="text-muted-foreground text-sm">Belum ada kandidat</p>
+                        </CardContent>
+                    </Card>
+                ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {candidates.map((c, i) => (
+                            <motion.div key={c.id}
+                                initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: i * 0.05 }}>
+                                <Card className="hover:shadow-md hover:border-hmif-green-200 transition-all">
+                                    <CardContent className="p-4">
+                                        <div className="flex items-center justify-between gap-4 flex-wrap">
+                                            <div className="flex items-center gap-4">
+                                                <div className="w-10 h-10 rounded-xl bg-hmif-green-100 flex items-center justify-center text-hmif-green-800 font-bold flex-shrink-0">
+                                                    {c.number}
+                                                </div>
+                                                <div className="flex items-center gap-2">
+                                                    <Avatar className="w-10 h-10 border border-border">
+                                                        <AvatarImage src={c.photo ? `/storage/${c.photo}` : undefined} />
+                                                        <AvatarFallback>
+                                                            {c.name.charAt(0)}
+                                                        </AvatarFallback>
+                                                    </Avatar>
+                                                    <div>
+                                                        <p className="text-foreground font-semibold text-sm">{c.name}</p>
+                                                        {c.vice_name && (
+                                                            <p className="text-muted-foreground text-xs">& {c.vice_name}</p>
+                                                        )}
+                                                        <p className="text-muted-foreground text-xs font-mono mt-0.5">
+                                                            {(c as any).election_session?.name}
+                                                        </p>
+                                                    </div>
                                                 </div>
                                             </div>
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-muted-foreground text-xs font-mono">{c.ballot_boxes_count} suara</span>
+                                                <Button onClick={() => openEdit(c)} variant="outline" size="icon-sm">
+                                                    <Pencil className="w-3.5 h-3.5" />
+                                                </Button>
+                                                <Button onClick={() => setDeleteTarget(c)} variant="outline" size="icon-sm"
+                                                    className="border-red-200 text-red-600 hover:bg-red-50">
+                                                    <Trash2 className="w-3.5 h-3.5" />
+                                                </Button>
+                                            </div>
                                         </div>
-                                        <div className="flex items-center gap-2">
-                                            <span className="text-emerald-600/50 text-xs font-mono">{c.ballot_boxes_count} suara</span>
-                                            <Button onClick={() => openEdit(c)} variant="outline" size="sm"
-                                                className="border-emerald-800 text-emerald-400 hover:bg-emerald-900/30">
-                                                <Pencil className="w-3.5 h-3.5" />
-                                            </Button>
-                                            <Button onClick={() => setDeleteTarget(c)} variant="outline" size="sm"
-                                                className="border-red-900 text-red-500 hover:bg-red-950/30">
-                                                <Trash2 className="w-3.5 h-3.5" />
-                                            </Button>
-                                        </div>
-                                    </div>
-                                </CardContent>
-                            </Card>
-                        </motion.div>
-                    ))}
-                </div>
+                                        {c.vision && (
+                                            <p className="text-muted-foreground text-xs mt-3 line-clamp-2 pl-14">
+                                                <span className="font-medium text-foreground">Visi:</span> {c.vision}
+                                            </p>
+                                        )}
+                                    </CardContent>
+                                </Card>
+                            </motion.div>
+                        ))}
+                    </div>
+                )}
             </div>
 
             {/* Create Dialog */}
             <Dialog open={createOpen} onOpenChange={setCreateOpen}>
-                <DialogContent className="bg-[#0f2318] border-emerald-800/50 text-white max-w-lg max-h-[85vh] overflow-y-auto">
+                <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
                     <DialogHeader>
                         <DialogTitle>Tambah Kandidat</DialogTitle>
                     </DialogHeader>
                     <div className="space-y-4 py-2">
                         <div className="space-y-1.5">
-                            <Label className="text-emerald-300/80 text-sm">Sesi Pemilihan *</Label>
+                            <Label>Sesi Pemilihan *</Label>
                             <Select value={createForm.data.election_session_id}
                                 onValueChange={v => createForm.setData('election_session_id', v)}>
-                                <SelectTrigger className="bg-emerald-950/30 border-emerald-900/50 text-white">
+                                <SelectTrigger>
                                     <SelectValue placeholder="Pilih sesi..." />
                                 </SelectTrigger>
-                                <SelectContent className="bg-[#0f2318] border-emerald-800">
+                                <SelectContent>
                                     {sessions.map(s => (
-                                        <SelectItem key={s.id} value={String(s.id)} className="text-white">{s.name}</SelectItem>
+                                        <SelectItem key={s.id} value={String(s.id)}>{s.name}</SelectItem>
                                     ))}
                                 </SelectContent>
                             </Select>
-                            {createForm.errors.election_session_id && <p className="text-red-400 text-xs">{createForm.errors.election_session_id}</p>}
+                            {createForm.errors.election_session_id && <p className="text-red-600 text-xs">{createForm.errors.election_session_id}</p>}
                         </div>
                         <div className="grid grid-cols-4 gap-3">
                             <div className="space-y-1.5">
-                                <Label className="text-emerald-300/80 text-sm">No. Urut</Label>
+                                <Label>No. Urut</Label>
                                 <Input type="number" min="1" value={createForm.data.number}
-                                    onChange={e => createForm.setData('number', e.target.value)}
-                                    className="bg-emerald-950/30 border-emerald-900/50 text-white" />
+                                    onChange={e => createForm.setData('number', e.target.value)} />
                             </div>
                             <div className="col-span-3 space-y-1.5">
-                                <Label className="text-emerald-300/80 text-sm">Nama Ketua *</Label>
+                                <Label>Nama Ketua *</Label>
                                 <Input value={createForm.data.name}
                                     onChange={e => createForm.setData('name', e.target.value)}
-                                    className="bg-emerald-950/30 border-emerald-900/50 text-white"
                                     placeholder="Nama lengkap" />
-                                {createForm.errors.name && <p className="text-red-400 text-xs">{createForm.errors.name}</p>}
+                                {createForm.errors.name && <p className="text-red-600 text-xs">{createForm.errors.name}</p>}
                             </div>
                         </div>
                         <div className="space-y-1.5">
-                            <Label className="text-emerald-300/80 text-sm">Nama Wakil (opsional)</Label>
+                            <Label>Nama Wakil (opsional)</Label>
                             <Input value={createForm.data.vice_name}
                                 onChange={e => createForm.setData('vice_name', e.target.value)}
-                                className="bg-emerald-950/30 border-emerald-900/50 text-white" placeholder="Nama wakil" />
+                                placeholder="Nama wakil" />
                         </div>
                         <div className="space-y-1.5">
-                            <Label className="text-emerald-300/80 text-sm">Visi</Label>
+                            <Label>Visi</Label>
                             <Textarea value={createForm.data.vision}
                                 onChange={e => createForm.setData('vision', e.target.value)}
-                                className="bg-emerald-950/30 border-emerald-900/50 text-white resize-none" rows={2} />
+                                className="resize-none" rows={2} />
                         </div>
                         <div className="space-y-1.5">
-                            <Label className="text-emerald-300/80 text-sm">Misi</Label>
+                            <Label>Misi</Label>
                             <Textarea value={createForm.data.mission}
                                 onChange={e => createForm.setData('mission', e.target.value)}
-                                className="bg-emerald-950/30 border-emerald-900/50 text-white resize-none" rows={2} />
+                                className="resize-none" rows={2} />
                         </div>
                     </div>
                     <DialogFooter>
-                        <Button variant="outline" onClick={() => setCreateOpen(false)}
-                            className="border-emerald-800 text-emerald-400 hover:bg-emerald-900/30">Batal</Button>
-                        <Button onClick={handleCreate} disabled={createForm.processing}
-                            className="bg-emerald-700 hover:bg-emerald-600 text-white gap-2">
+                        <Button variant="outline" onClick={() => setCreateOpen(false)}>Batal</Button>
+                        <Button onClick={handleCreate} disabled={createForm.processing} className="gap-2">
                             {createForm.processing && <Loader2 className="w-4 h-4 animate-spin" />}
                             Simpan
                         </Button>
@@ -222,49 +222,44 @@ export default function CandidatesPage({ sessions, candidates }: CandidatesPageP
 
             {/* Edit Dialog */}
             <Dialog open={!!editCandidate} onOpenChange={() => setEditCandidate(null)}>
-                <DialogContent className="bg-[#0f2318] border-emerald-800/50 text-white max-w-lg">
+                <DialogContent className="max-w-lg">
                     <DialogHeader>
                         <DialogTitle>Edit Kandidat</DialogTitle>
                     </DialogHeader>
                     <div className="space-y-4 py-2">
                         <div className="grid grid-cols-4 gap-3">
                             <div className="space-y-1.5">
-                                <Label className="text-emerald-300/80 text-sm">No. Urut</Label>
+                                <Label>No. Urut</Label>
                                 <Input type="number" min="1" value={editForm.data.number}
-                                    onChange={e => editForm.setData('number', e.target.value)}
-                                    className="bg-emerald-950/30 border-emerald-900/50 text-white" />
+                                    onChange={e => editForm.setData('number', e.target.value)} />
                             </div>
                             <div className="col-span-3 space-y-1.5">
-                                <Label className="text-emerald-300/80 text-sm">Nama Ketua</Label>
+                                <Label>Nama Ketua</Label>
                                 <Input value={editForm.data.name}
-                                    onChange={e => editForm.setData('name', e.target.value)}
-                                    className="bg-emerald-950/30 border-emerald-900/50 text-white" />
+                                    onChange={e => editForm.setData('name', e.target.value)} />
                             </div>
                         </div>
                         <div className="space-y-1.5">
-                            <Label className="text-emerald-300/80 text-sm">Nama Wakil</Label>
+                            <Label>Nama Wakil</Label>
                             <Input value={editForm.data.vice_name}
-                                onChange={e => editForm.setData('vice_name', e.target.value)}
-                                className="bg-emerald-950/30 border-emerald-900/50 text-white" />
+                                onChange={e => editForm.setData('vice_name', e.target.value)} />
                         </div>
                         <div className="space-y-1.5">
-                            <Label className="text-emerald-300/80 text-sm">Visi</Label>
+                            <Label>Visi</Label>
                             <Textarea value={editForm.data.vision}
                                 onChange={e => editForm.setData('vision', e.target.value)}
-                                className="bg-emerald-950/30 border-emerald-900/50 text-white resize-none" rows={2} />
+                                className="resize-none" rows={2} />
                         </div>
                         <div className="space-y-1.5">
-                            <Label className="text-emerald-300/80 text-sm">Misi</Label>
+                            <Label>Misi</Label>
                             <Textarea value={editForm.data.mission}
                                 onChange={e => editForm.setData('mission', e.target.value)}
-                                className="bg-emerald-950/30 border-emerald-900/50 text-white resize-none" rows={2} />
+                                className="resize-none" rows={2} />
                         </div>
                     </div>
                     <DialogFooter>
-                        <Button variant="outline" onClick={() => setEditCandidate(null)}
-                            className="border-emerald-800 text-emerald-400 hover:bg-emerald-900/30">Batal</Button>
-                        <Button onClick={handleEdit} disabled={editForm.processing}
-                            className="bg-emerald-700 hover:bg-emerald-600 text-white gap-2">
+                        <Button variant="outline" onClick={() => setEditCandidate(null)}>Batal</Button>
+                        <Button onClick={handleEdit} disabled={editForm.processing} className="gap-2">
                             {editForm.processing && <Loader2 className="w-4 h-4 animate-spin" />}
                             Perbarui
                         </Button>
@@ -274,16 +269,16 @@ export default function CandidatesPage({ sessions, candidates }: CandidatesPageP
 
             {/* Delete Alert */}
             <AlertDialog open={!!deleteTarget} onOpenChange={() => setDeleteTarget(null)}>
-                <AlertDialogContent className="bg-[#0f2318] border-red-900/50 text-white">
+                <AlertDialogContent>
                     <AlertDialogHeader>
                         <AlertDialogTitle>Hapus Kandidat?</AlertDialogTitle>
-                        <AlertDialogDescription className="text-emerald-500/50">
-                            Kandidat "<span className="text-white">{deleteTarget?.name}</span>" akan dihapus beserta semua suara terkait.
+                        <AlertDialogDescription>
+                            Kandidat &ldquo;<span className="font-medium text-foreground">{deleteTarget?.name}</span>&rdquo; akan dihapus beserta semua suara terkait.
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                        <AlertDialogCancel className="border-emerald-800 text-emerald-400 bg-transparent">Batal</AlertDialogCancel>
-                        <AlertDialogAction onClick={handleDelete} className="bg-red-800 hover:bg-red-700">Hapus</AlertDialogAction>
+                        <AlertDialogCancel>Batal</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700 text-white">Hapus</AlertDialogAction>
                     </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialog>

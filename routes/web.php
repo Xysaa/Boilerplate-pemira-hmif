@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\LandingController;
 use App\Http\Controllers\Auth\GoogleAuthController;
 use App\Http\Controllers\Auth\StaffLoginController;
 use App\Http\Controllers\Admin\AdminDashboardController;
@@ -11,18 +12,18 @@ use App\Http\Controllers\Petugas\PetugasController;
 use App\Http\Controllers\Voter\VoterController;
 use Illuminate\Support\Facades\Route;
 
-// ── Root: redirect ke dashboard sesuai role jika sudah login ──────────────────
+// ── Root: landing publik, atau redirect ke dashboard jika sudah login ─────────
 Route::get('/', function () {
-    if (!auth()->check()) {
-        return redirect()->route('login');
+    if (auth()->check()) {
+        return match (auth()->user()->role) {
+            'admin'   => redirect()->route('admin.dashboard'),
+            'petugas' => redirect()->route('petugas.dashboard'),
+            'voter'   => redirect()->route('voter.dashboard'),
+            default   => redirect()->route('login'),
+        };
     }
-    return match (auth()->user()->role) {
-        'admin'   => redirect()->route('admin.dashboard'),
-        'petugas' => redirect()->route('petugas.dashboard'),
-        'voter'   => redirect()->route('voter.dashboard'),
-        default   => redirect()->route('login'),
-    };
-});
+    return app(LandingController::class)->index();
+})->name('landing');
 
 // ── Auth: Staff Login ─────────────────────────────────────────────────────────
 // PENTING: middleware 'guest' hanya untuk GET, bukan POST

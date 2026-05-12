@@ -10,10 +10,14 @@ const badgeVariants = cva(
   {
     variants: {
       variant: {
-        default: "border-transparent bg-emerald-700 text-white hover:bg-emerald-600",
-        secondary: "border-transparent bg-emerald-900/40 text-emerald-300 hover:bg-emerald-900/60",
-        destructive: "border-transparent bg-red-800/60 text-red-300 hover:bg-red-800",
-        outline: "text-emerald-300 border-emerald-800",
+        default: "border-transparent bg-hmif-green-700 text-white hover:bg-hmif-green-800",
+        accent: "border-transparent bg-hmif-yellow-500 text-hmif-green-950 hover:bg-hmif-yellow-600",
+        info: "border-transparent bg-hmif-blue-700 text-white hover:bg-hmif-blue-800",
+        secondary: "border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80",
+        destructive: "border-transparent bg-red-100 text-red-700 hover:bg-red-200",
+        success: "border-transparent bg-green-100 text-green-700 hover:bg-green-200",
+        warning: "border-transparent bg-amber-100 text-amber-800 hover:bg-amber-200",
+        outline: "text-foreground border-border",
       },
     },
     defaultVariants: { variant: "default" },
@@ -35,10 +39,10 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
       <input
         type={type}
         className={cn(
-          "flex h-10 w-full rounded-xl border border-emerald-900/50 bg-emerald-950/30 px-3 py-2 text-sm text-white ring-offset-background",
+          "flex h-10 w-full rounded-xl border border-input bg-white px-3 py-2 text-sm text-foreground ring-offset-background",
           "file:border-0 file:bg-transparent file:text-sm file:font-medium",
-          "placeholder:text-emerald-800",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-0",
+          "placeholder:text-muted-foreground",
+          "focus-visible:outline-none focus-visible:border-hmif-green-500 focus-visible:ring-2 focus-visible:ring-hmif-green-500/20",
           "disabled:cursor-not-allowed disabled:opacity-50",
           className
         )}
@@ -57,7 +61,7 @@ const Label = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <LabelPrimitive.Root
     ref={ref}
-    className={cn("text-sm font-medium text-emerald-300/80 leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70", className)}
+    className={cn("text-sm font-medium text-foreground leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70", className)}
     {...props}
   />
 ))
@@ -71,9 +75,9 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
     return (
       <textarea
         className={cn(
-          "flex min-h-[80px] w-full rounded-xl border border-emerald-900/50 bg-emerald-950/30 px-3 py-2 text-sm text-white",
-          "placeholder:text-emerald-800",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-0",
+          "flex min-h-[80px] w-full rounded-xl border border-input bg-white px-3 py-2 text-sm text-foreground",
+          "placeholder:text-muted-foreground",
+          "focus-visible:outline-none focus-visible:border-hmif-green-500 focus-visible:ring-2 focus-visible:ring-hmif-green-500/20",
           "disabled:cursor-not-allowed disabled:opacity-50",
           className
         )}
@@ -95,7 +99,7 @@ const Separator = React.forwardRef<
     decorative={decorative}
     orientation={orientation}
     className={cn(
-      "shrink-0 bg-emerald-900/40",
+      "shrink-0 bg-border",
       orientation === "horizontal" ? "h-[1px] w-full" : "h-full w-[1px]",
       className
     )}

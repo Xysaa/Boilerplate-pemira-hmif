@@ -1,11 +1,12 @@
 import { useEffect, useRef } from 'react';
 import { useForm, usePage } from '@inertiajs/react';
 import { motion } from 'framer-motion';
-import { Mail, Lock, ChevronRight, Leaf, AlertCircle } from 'lucide-react';
+import { Mail, Lock, ChevronRight, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
+import { Logo } from '@/components/brand/Logo';
 
 interface LoginProps {
     turnstileSiteKey: string;
@@ -21,23 +22,21 @@ declare global {
 }
 
 export default function Login({ turnstileSiteKey }: LoginProps) {
-    // errors dari Inertia shared props (dari withErrors() Laravel)
     const { errors: pageErrors } = usePage<{ errors: Record<string, string> }>().props;
 
     const turnstileRef    = useRef<HTMLDivElement>(null);
     const widgetIdRef     = useRef<string>('');
     const hasTurnstileKey = !!turnstileSiteKey;
 
-    // PENTING: nama field harus sama persis dengan yang divalidate di StaffLoginController
     const { data, setData, post, processing, errors } = useForm({
         email:                 '',
         password:              '',
-        cf_turnstile_response: '', // ← harus cocok dengan controller
+        cf_turnstile_response: '',
         remember:              false,
     });
 
     useEffect(() => {
-        if (!hasTurnstileKey) return; // skip jika tidak ada site key (dev/test)
+        if (!hasTurnstileKey) return;
 
         const script    = document.createElement('script');
         script.src      = 'https://challenges.cloudflare.com/turnstile/v0/api.js';
@@ -51,7 +50,7 @@ export default function Login({ turnstileSiteKey }: LoginProps) {
                     sitekey:           turnstileSiteKey,
                     callback:          (token: string) => setData('cf_turnstile_response', token),
                     'expired-callback': () => setData('cf_turnstile_response', ''),
-                    theme:             'dark',
+                    theme:             'light',
                 });
             }
         };
@@ -66,30 +65,20 @@ export default function Login({ turnstileSiteKey }: LoginProps) {
         post(route('login.store'));
     };
 
-    // Tombol disabled HANYA jika ada turnstile key tapi belum diisi
     const isSubmitDisabled = processing || (hasTurnstileKey && !data.cf_turnstile_response);
 
-    // Kumpulkan semua pesan error yang ada
     const errorMessage = pageErrors.oauth
         ?? pageErrors.email
         ?? pageErrors.cf_turnstile_response
         ?? null;
 
     return (
-        <div className="min-h-screen bg-[#0a1a0f] flex items-center justify-center p-4 relative overflow-hidden">
+        <div className="min-h-screen bg-hero-mesh flex items-center justify-center p-4 relative overflow-hidden">
             {/* Background dot grid */}
-            <div className="absolute inset-0 opacity-5 pointer-events-none">
-                <div
-                    className="absolute inset-0"
-                    style={{
-                        backgroundImage: 'radial-gradient(circle at 1px 1px, #4ade80 1px, transparent 0)',
-                        backgroundSize:  '40px 40px',
-                    }}
-                />
-            </div>
+            <div className="absolute inset-0 pointer-events-none bg-dotgrid" />
 
             {/* Ambient glow */}
-            <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-96 h-96 bg-emerald-900/20 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-96 h-96 bg-hmif-green-200/30 rounded-full blur-3xl pointer-events-none" />
 
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -103,46 +92,43 @@ export default function Login({ turnstileSiteKey }: LoginProps) {
                         initial={{ scale: 0.8 }}
                         animate={{ scale: 1 }}
                         transition={{ delay: 0.1, type: 'spring' }}
-                        className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-emerald-900/60 border border-emerald-700/50 mb-4 shadow-lg shadow-emerald-900/40"
+                        className="inline-flex items-center justify-center mb-4"
                     >
-                        <Leaf className="w-8 h-8 text-emerald-400" />
+                        <Logo size={56} />
                     </motion.div>
-                    <h1
-                        className="text-3xl font-bold text-white tracking-tight"
-                        style={{ fontFamily: "'DM Serif Display', serif" }}
-                    >
-                        E-Vote ITERA
+                    <h1 className="text-3xl font-bold text-foreground tracking-tight font-serif">
+                        PEMIRA HMIF
                     </h1>
-                    <p className="text-emerald-400/70 text-sm mt-1 font-mono">
+                    <p className="text-muted-foreground text-sm mt-1 font-mono">
                         Sistem Pemilihan Elektronik
                     </p>
                 </div>
 
                 {/* Card */}
-                <div className="bg-[#0f2318]/80 backdrop-blur-sm border border-emerald-900/40 rounded-2xl p-8 shadow-2xl">
+                <div className="bg-white/80 backdrop-blur-md border border-border rounded-2xl p-8 shadow-xl">
 
-                    {/* Error banner — tampil untuk semua error dari server */}
+                    {/* Error banner */}
                     {errorMessage && (
                         <motion.div
                             initial={{ opacity: 0, height: 0 }}
                             animate={{ opacity: 1, height: 'auto' }}
-                            className="mb-5 p-3 rounded-lg bg-red-950/60 border border-red-800/50 text-red-300 text-sm flex items-start gap-2"
+                            className="mb-5 p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm flex items-start gap-2"
                         >
                             <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
                             <span>{errorMessage}</span>
                         </motion.div>
                     )}
 
-                    {/* ── Google OAuth — Voter ────────────────────────────── */}
+                    {/* Google OAuth - Voter */}
                     <div className="mb-6">
-                        <p className="text-emerald-300/60 text-xs font-mono uppercase tracking-widest mb-3 text-center">
+                        <p className="text-muted-foreground text-xs font-mono uppercase tracking-widest mb-3 text-center">
                             Pemilih (Mahasiswa)
                         </p>
                         <Button
                             type="button"
                             variant="outline"
                             onClick={() => { window.location.href = route('auth.google'); }}
-                            className="w-full h-12 bg-white/5 border-emerald-800/40 text-white hover:bg-white/10 hover:border-emerald-600 gap-3"
+                            className="w-full h-12 bg-white border-border text-foreground hover:bg-muted gap-3"
                         >
                             <svg className="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24">
                                 <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
@@ -152,59 +138,55 @@ export default function Login({ turnstileSiteKey }: LoginProps) {
                             </svg>
                             Masuk dengan Google
                         </Button>
-                        <p className="text-emerald-400/40 text-xs text-center mt-2">
-                            Khusus email @student.itera.ac.id · Prodi Informatika
+                        <p className="text-muted-foreground text-xs text-center mt-2">
+                            Khusus email @student.itera.ac.id &middot; Prodi Informatika
                         </p>
                     </div>
 
                     <div className="flex items-center gap-3 mb-6">
-                        <Separator className="flex-1 bg-emerald-900/40" />
-                        <span className="text-emerald-400/30 text-xs font-mono">ATAU</span>
-                        <Separator className="flex-1 bg-emerald-900/40" />
+                        <Separator className="flex-1" />
+                        <span className="text-muted-foreground text-xs font-mono">ATAU</span>
+                        <Separator className="flex-1" />
                     </div>
 
-                    {/* ── Staff Login ─────────────────────────────────────── */}
-                    <p className="text-emerald-300/60 text-xs font-mono uppercase tracking-widest mb-4 text-center">
+                    {/* Staff Login */}
+                    <p className="text-muted-foreground text-xs font-mono uppercase tracking-widest mb-4 text-center">
                         Admin & Petugas
                     </p>
 
                     <form onSubmit={handleSubmit} className="space-y-4">
                         {/* Email */}
                         <div className="space-y-1.5">
-                            <Label htmlFor="email" className="text-emerald-300/80 text-sm">
-                                Email
-                            </Label>
+                            <Label htmlFor="email">Email</Label>
                             <div className="relative">
-                                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-emerald-600" />
+                                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                                 <Input
                                     id="email"
                                     type="email"
                                     value={data.email}
                                     onChange={e => setData('email', e.target.value)}
-                                    className="pl-10 bg-emerald-950/30 border-emerald-900/50 text-white placeholder:text-emerald-800 focus-visible:ring-emerald-600"
+                                    className="pl-10"
                                     placeholder="admin@itera.ac.id"
                                     autoComplete="email"
                                     required
                                 />
                             </div>
                             {errors.email && (
-                                <p className="text-red-400 text-xs">{errors.email}</p>
+                                <p className="text-red-600 text-xs">{errors.email}</p>
                             )}
                         </div>
 
                         {/* Password */}
                         <div className="space-y-1.5">
-                            <Label htmlFor="password" className="text-emerald-300/80 text-sm">
-                                Password
-                            </Label>
+                            <Label htmlFor="password">Password</Label>
                             <div className="relative">
-                                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-emerald-600" />
+                                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                                 <Input
                                     id="password"
                                     type="password"
                                     value={data.password}
                                     onChange={e => setData('password', e.target.value)}
-                                    className="pl-10 bg-emerald-950/30 border-emerald-900/50 text-white placeholder:text-emerald-800 focus-visible:ring-emerald-600"
+                                    className="pl-10"
                                     placeholder="••••••••"
                                     autoComplete="current-password"
                                     required
@@ -212,21 +194,21 @@ export default function Login({ turnstileSiteKey }: LoginProps) {
                             </div>
                         </div>
 
-                        {/* Cloudflare Turnstile — hanya render jika ada site key */}
+                        {/* Cloudflare Turnstile */}
                         {hasTurnstileKey && (
                             <div className="flex flex-col items-center gap-1">
                                 <div ref={turnstileRef} />
                                 {errors.cf_turnstile_response && (
-                                    <p className="text-red-400 text-xs">{errors.cf_turnstile_response}</p>
+                                    <p className="text-red-600 text-xs">{errors.cf_turnstile_response}</p>
                                 )}
                             </div>
                         )}
 
-                        {/* Tombol submit */}
+                        {/* Submit */}
                         <Button
                             type="submit"
                             disabled={isSubmitDisabled}
-                            className="w-full h-12 bg-emerald-700 hover:bg-emerald-600 disabled:opacity-50 text-white font-semibold gap-2 transition-all"
+                            className="w-full h-12 gap-2"
                         >
                             {processing ? (
                                 <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -240,8 +222,8 @@ export default function Login({ turnstileSiteKey }: LoginProps) {
                     </form>
                 </div>
 
-                <p className="text-emerald-900/60 text-xs text-center mt-6 font-mono">
-                    Institut Teknologi Sumatera · Himpunan Mahasiswa Informatika
+                <p className="text-muted-foreground text-xs text-center mt-6 font-mono">
+                    Institut Teknologi Sumatera &middot; Himpunan Mahasiswa Informatika
                 </p>
             </motion.div>
         </div>

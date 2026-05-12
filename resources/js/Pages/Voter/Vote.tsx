@@ -1,14 +1,13 @@
 import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useForm, router } from '@inertiajs/react';
+import { motion } from 'framer-motion';
+import { router } from '@inertiajs/react';
 import {
     CheckCircle2, ChevronRight, Shield,
-    Loader2, ArrowLeft
+    Loader2, ArrowLeft,
 } from 'lucide-react';
 import AppLayout from '@/layouts/AppLayout';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
     Dialog, DialogContent, DialogDescription,
@@ -16,6 +15,7 @@ import {
 } from '@/components/ui/dialog';
 import { Link } from '@inertiajs/react';
 import { cn } from '@/lib/utils';
+import { toast } from '@/components/ui/toaster';
 import type { Candidate, ElectionSession, User } from '@/types';
 
 interface VotePageProps {
@@ -25,35 +25,31 @@ interface VotePageProps {
 }
 
 function CandidateCard({
-    candidate,
-    selected,
-    onSelect,
+    candidate, selected, onSelect,
 }: {
-    candidate: Candidate;
-    selected:  boolean;
-    onSelect:  () => void;
+    candidate: Candidate; selected: boolean; onSelect: () => void;
 }) {
     return (
         <motion.button
-            whileHover={{ scale: 1.01 }}
-            whileTap={{ scale: 0.99 }}
+            whileHover={{ scale: 1.005 }}
+            whileTap={{ scale: 0.995 }}
             onClick={onSelect}
             type="button"
             className={cn(
                 'w-full text-left rounded-2xl border p-5 transition-all cursor-pointer',
                 selected
-                    ? 'bg-emerald-950/60 border-emerald-600/60 shadow-lg shadow-emerald-900/30 ring-1 ring-emerald-600/30'
-                    : 'bg-[#0f2318]/40 border-emerald-900/30 hover:border-emerald-800/50 hover:bg-[#0f2318]/60'
+                    ? 'bg-hmif-green-50 border-hmif-green-500 shadow-lg shadow-hmif-green-900/10 ring-2 ring-hmif-green-500/30'
+                    : 'bg-white border-border hover:border-hmif-green-300 hover:shadow-md hover:bg-hmif-green-50/30'
             )}
         >
             <div className="flex items-start gap-4">
-                {/* Nomor urut */}
                 <div
                     className={cn(
-                        'w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 text-xl font-bold transition-all',
-                        selected ? 'bg-emerald-700 text-white' : 'bg-emerald-950/60 text-emerald-600'
+                        'w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0 text-xl font-bold transition-all',
+                        selected
+                            ? 'bg-hmif-green-700 text-white shadow-md'
+                            : 'bg-hmif-green-100 text-hmif-green-800'
                     )}
-                    style={{ fontFamily: "'DM Serif Display', serif" }}
                 >
                     {candidate.number}
                 </div>
@@ -63,29 +59,28 @@ function CandidateCard({
                         <div>
                             <p className={cn(
                                 'font-bold text-base leading-tight',
-                                selected ? 'text-white' : 'text-emerald-200/80'
+                                selected ? 'text-hmif-green-900' : 'text-foreground'
                             )}>
                                 {candidate.name}
                             </p>
                             {candidate.vice_name && (
-                                <p className="text-emerald-500/60 text-xs mt-0.5 font-mono">
+                                <p className="text-muted-foreground text-xs mt-0.5">
                                     & {candidate.vice_name}
                                 </p>
                             )}
                         </div>
 
-                        {/* Foto */}
                         <div className="flex -space-x-2">
-                            <Avatar className="w-10 h-10 border-2 border-emerald-900">
+                            <Avatar className="w-10 h-10 border-2 border-white ring-1 ring-border">
                                 <AvatarImage src={candidate.photo ? `/storage/${candidate.photo}` : undefined} />
-                                <AvatarFallback className="bg-emerald-800/60 text-emerald-300 text-xs">
+                                <AvatarFallback className="text-xs font-bold">
                                     {candidate.name.charAt(0)}
                                 </AvatarFallback>
                             </Avatar>
                             {candidate.vice_name && (
-                                <Avatar className="w-10 h-10 border-2 border-emerald-900">
+                                <Avatar className="w-10 h-10 border-2 border-white ring-1 ring-border">
                                     <AvatarImage src={candidate.vice_photo ? `/storage/${candidate.vice_photo}` : undefined} />
-                                    <AvatarFallback className="bg-emerald-900/60 text-emerald-400 text-xs">
+                                    <AvatarFallback className="bg-hmif-blue-100 text-hmif-blue-800 text-xs font-bold">
                                         {candidate.vice_name.charAt(0)}
                                     </AvatarFallback>
                                 </Avatar>
@@ -94,8 +89,8 @@ function CandidateCard({
                     </div>
 
                     {candidate.vision && (
-                        <p className="text-emerald-600/50 text-xs mt-2 line-clamp-2 leading-relaxed">
-                            {candidate.vision}
+                        <p className="text-muted-foreground text-xs mt-3 line-clamp-2 leading-relaxed">
+                            <span className="font-semibold text-hmif-green-700">Visi:</span> {candidate.vision}
                         </p>
                     )}
 
@@ -103,10 +98,10 @@ function CandidateCard({
                         <motion.div
                             initial={{ opacity: 0, y: 4 }}
                             animate={{ opacity: 1, y: 0 }}
-                            className="flex items-center gap-1.5 mt-2"
+                            className="flex items-center gap-1.5 mt-3"
                         >
-                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-                            <span className="text-emerald-400 text-xs font-semibold">Dipilih</span>
+                            <CheckCircle2 className="w-4 h-4 text-hmif-green-700" />
+                            <span className="text-hmif-green-700 text-xs font-bold">Dipilih</span>
                         </motion.div>
                     )}
                 </div>
@@ -116,9 +111,9 @@ function CandidateCard({
 }
 
 export default function VotePage({ voter, session, candidates }: VotePageProps) {
-    const [selectedId,   setSelectedId]   = useState<number | null>(null);
-    const [confirmOpen,  setConfirmOpen]  = useState(false);
-    const [submitting,   setSubmitting]   = useState(false);
+    const [selectedId, setSelectedId] = useState<number | null>(null);
+    const [confirmOpen, setConfirmOpen] = useState(false);
+    const [submitting, setSubmitting] = useState(false);
 
     const selectedCandidate = candidates.find(c => c.id === selectedId);
 
@@ -127,7 +122,6 @@ export default function VotePage({ voter, session, candidates }: VotePageProps) 
 
         setSubmitting(true);
 
-        // Gunakan router.post langsung — lebih reliable dari useForm untuk kasus ini
         router.post(
             route('voter.vote.submit'),
             { candidate_id: selectedId },
@@ -135,9 +129,11 @@ export default function VotePage({ voter, session, candidates }: VotePageProps) 
                 onSuccess: () => {
                     setConfirmOpen(false);
                     setSubmitting(false);
+                    toast.success('Suara Anda berhasil dicatat!');
                 },
                 onError: () => {
                     setSubmitting(false);
+                    toast.error('Gagal mengirim suara. Coba lagi.');
                 },
                 preserveScroll: true,
             }
@@ -145,7 +141,7 @@ export default function VotePage({ voter, session, candidates }: VotePageProps) 
     };
 
     return (
-        <AppLayout title="Pemungutan Suara">
+        <AppLayout title="Pemungutan Suara" subtitle={session.name}>
             <div className="max-w-2xl mx-auto space-y-6">
 
                 {/* Header */}
@@ -155,21 +151,14 @@ export default function VotePage({ voter, session, candidates }: VotePageProps) 
                     className="space-y-1"
                 >
                     <Link href={route('voter.dashboard')}>
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            className="text-emerald-600 hover:text-emerald-400 -ml-2 mb-1 gap-1"
-                        >
+                        <Button variant="ghost" size="sm" className="text-muted-foreground -ml-2 mb-1 gap-1">
                             <ArrowLeft className="w-4 h-4" /> Kembali
                         </Button>
                     </Link>
-                    <h2
-                        className="text-2xl font-bold text-white"
-                        style={{ fontFamily: "'DM Serif Display', serif" }}
-                    >
+                    <h2 className="text-2xl font-bold text-foreground tracking-tight">
                         {session.name}
                     </h2>
-                    <p className="text-emerald-500/50 text-sm">
+                    <p className="text-muted-foreground text-sm">
                         Pilih salah satu kandidat di bawah ini
                     </p>
                 </motion.div>
@@ -180,15 +169,15 @@ export default function VotePage({ voter, session, candidates }: VotePageProps) 
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.1 }}
                 >
-                    <div className="flex items-center gap-2 p-3 rounded-lg bg-emerald-950/30 border border-emerald-900/30">
-                        <Shield className="w-4 h-4 text-emerald-600 flex-shrink-0" />
-                        <p className="text-emerald-700 text-xs">
-                            Suara bersifat rahasia. Pilihan tidak dapat diubah setelah dikonfirmasi.
+                    <div className="flex items-center gap-2 p-3 rounded-xl bg-hmif-green-50 border border-hmif-green-100">
+                        <Shield className="w-4 h-4 text-hmif-green-700 flex-shrink-0" />
+                        <p className="text-hmif-green-800 text-xs">
+                            Suara bersifat <b>rahasia</b>. Pilihan tidak dapat diubah setelah dikonfirmasi.
                         </p>
                     </div>
                 </motion.div>
 
-                {/* Daftar Kandidat */}
+                {/* Candidates */}
                 <div className="space-y-3">
                     {candidates.map((candidate, i) => (
                         <motion.div
@@ -206,20 +195,22 @@ export default function VotePage({ voter, session, candidates }: VotePageProps) 
                     ))}
                 </div>
 
-                {/* Tombol Lanjutkan */}
+                {/* Submit button */}
                 <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.3 }}
+                    className="sticky bottom-6"
                 >
                     <Button
                         onClick={() => selectedId && setConfirmOpen(true)}
                         disabled={!selectedId}
+                        size="lg"
                         className={cn(
-                            'w-full h-13 text-base font-semibold gap-2 transition-all',
+                            'w-full gap-2 shadow-xl transition-all',
                             selectedId
-                                ? 'bg-emerald-700 hover:bg-emerald-600 text-white shadow-lg shadow-emerald-900/40'
-                                : 'bg-emerald-950 text-emerald-800 cursor-not-allowed'
+                                ? 'shadow-hmif-green-900/20'
+                                : 'opacity-60 cursor-not-allowed'
                         )}
                     >
                         {selectedId
@@ -230,32 +221,34 @@ export default function VotePage({ voter, session, candidates }: VotePageProps) 
                 </motion.div>
             </div>
 
-            {/* Dialog Konfirmasi */}
+            {/* Confirmation Dialog */}
             <Dialog open={confirmOpen} onOpenChange={open => {
                 if (!submitting) setConfirmOpen(open);
             }}>
-                <DialogContent className="bg-[#0f2318] border-emerald-800/50 text-white max-w-sm mx-auto">
+                <DialogContent className="max-w-sm mx-auto">
                     <DialogHeader>
-                        <DialogTitle className="text-white flex items-center gap-2 text-lg">
-                            <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+                        <DialogTitle className="flex items-center gap-2 text-lg">
+                            <CheckCircle2 className="w-5 h-5 text-hmif-green-700" />
                             Konfirmasi Pilihan
                         </DialogTitle>
-                        <DialogDescription className="text-emerald-500/60 text-sm">
-                            Pastikan pilihan Anda sudah benar. Suara tidak dapat diubah setelah dikonfirmasi.
+                        <DialogDescription>
+                            Pastikan pilihan Anda sudah benar. <b>Suara tidak dapat diubah</b> setelah dikonfirmasi.
                         </DialogDescription>
                     </DialogHeader>
 
                     {selectedCandidate && (
-                        <div className="my-2 p-4 rounded-xl bg-emerald-950/60 border border-emerald-800/40">
-                            <p className="text-emerald-400/60 text-xs font-mono mb-2">Kandidat yang Dipilih</p>
+                        <div className="my-2 p-4 rounded-2xl bg-hmif-green-50 border border-hmif-green-200">
+                            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-2">
+                                Kandidat yang Dipilih
+                            </p>
                             <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-lg bg-emerald-700 flex items-center justify-center text-white font-bold flex-shrink-0">
+                                <div className="w-11 h-11 rounded-xl bg-hmif-green-700 flex items-center justify-center text-white font-bold flex-shrink-0">
                                     {selectedCandidate.number}
                                 </div>
                                 <div>
-                                    <p className="text-white font-semibold">{selectedCandidate.name}</p>
+                                    <p className="text-foreground font-bold">{selectedCandidate.name}</p>
                                     {selectedCandidate.vice_name && (
-                                        <p className="text-emerald-500/50 text-xs">
+                                        <p className="text-muted-foreground text-xs">
                                             & {selectedCandidate.vice_name}
                                         </p>
                                     )}
@@ -269,14 +262,13 @@ export default function VotePage({ voter, session, candidates }: VotePageProps) 
                             variant="outline"
                             onClick={() => setConfirmOpen(false)}
                             disabled={submitting}
-                            className="border-emerald-800 text-emerald-400 hover:bg-emerald-900/30"
                         >
                             Batal
                         </Button>
                         <Button
                             onClick={handleConfirm}
                             disabled={submitting}
-                            className="bg-emerald-700 hover:bg-emerald-600 text-white gap-2"
+                            className="gap-2"
                         >
                             {submitting
                                 ? <><Loader2 className="w-4 h-4 animate-spin" /><span>Memproses...</span></>
